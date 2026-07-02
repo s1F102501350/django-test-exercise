@@ -1,14 +1,20 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from todo.models import Task
+
+
+def parse_due_at(value):
+    if not value:
+        return None
+    return make_aware(parse_datetime(value))
 
 
 def index(request):
     if request.method == 'POST':
         task = Task(
             title=request.POST['title'],
-            due_at=make_aware(parse_datetime(request.POST['due_at'])),
+            due_at=parse_due_at(request.POST.get('due_at')),
         )
         task.save()
 
@@ -28,3 +34,19 @@ def detail(request, pk):
         'task': task,
     }
     return render(request, 'todo/detail.html', context)
+
+
+def edit(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    context = {
+        'task': task,
+    }
+    return render(request, 'todo/edit.html', context)
+
+
+def update(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    task.title = request.POST['title']
+    task.due_at = parse_due_at(request.POST.get('due_at'))
+    task.save()
+    return redirect('detail', pk=task.pk)

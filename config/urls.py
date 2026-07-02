@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', todo_views.index, name='index'),
     path('<int:pk>/', todo_views.detail, name='detail'),
+    path('<int:pk>/edit/', todo_views.edit, name='edit'),
+    path('<int:pk>/update/', todo_views.update, name='update'),
 ]
